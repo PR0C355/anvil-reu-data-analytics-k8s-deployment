@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dash-load
+  annotations:
+    metallb.universe.tf/address-pool: anvil-private-pool
+
+spec:
+  selector:
+    app: dashboard
+  ports:
+    - name: connect
+      port: 8050
+      targetPort: 8050
+      protocol: TCP
+  type: LoadBalancer
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800

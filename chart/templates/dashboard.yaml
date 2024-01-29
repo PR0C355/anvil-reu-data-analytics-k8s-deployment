@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard
+  labels:
+    app: dashboard
+  namespace: oo-test
+spec:
+  selector:
+    matchLabels:
+      app: dashboard
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dashboard
+    spec:
+      volumes:
+        - name: data-storage
+          persistentVolumeClaim:
+            claimName: data-storage-claim
+      containers: 
+        - name: flask-app
+          image: {{ .Values.images.repository }}{{- .Values.images.dashboardTag }}
+          imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: "/app/data"
+              name: data-storage
+          startupProbe:
+            tcpSocket:
+              port: 8050
+            failureThreshold: 30
+            periodSeconds: 10

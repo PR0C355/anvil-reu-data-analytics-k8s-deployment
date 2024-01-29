@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: data-collect
+  labels:
+    app: data-collect
+  namespace: oo-test
+spec:
+  schedule: "* */1 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec: 
+          volumes:
+            - name: data-storage
+              persistentVolumeClaim:
+                claimName: data-storage-claim
+          containers: 
+            - name: data-collection
+              image: {{ .Values.images.repository }}{{- .Values.images.jobTag }}
+              imagePullPolicy: Always
+              volumeMounts:
+                - mountPath: "/app/data"
+                  name: data-storage
+              resources:
+                requests:
+                  memory: "24000Mi"
+                  cpu: "4000m"
+                limits: 
+                  memory: "32000Mi"
+                  cpu: "4000m"
+          restartPolicy: OnFailure
